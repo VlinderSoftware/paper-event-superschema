@@ -1,0 +1,17 @@
+name: Build the paper
+on:
+    push: {}
+    workflow_dispatch: {}
+
+jobs:
+    build-paper:
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout
+          uses: actions/checkout@v4.1.1
+        - uses: blytkerchan/build-paper@v1
+          with:
+            filename: guidelines.ipynb
+            requirements-txt: paper-requirements.txt
+            attachments: diagram.png
+            build-pdf: false
