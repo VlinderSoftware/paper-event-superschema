@@ -14,4 +14,4 @@ jobs:
             filename: guidelines.ipynb
             requirements-txt: paper-requirements.txt
             attachments: diagram.png
-            build-pdf: false
+            build-pdf: true
