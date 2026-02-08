@@ -36,7 +36,7 @@
   "author": "Vlinder Software",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.3.3"
+    "typescript": "^5.9.3"
   },
   "repository": {
     "type": "git",
