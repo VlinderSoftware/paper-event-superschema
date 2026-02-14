@@ -22,7 +22,7 @@ jobs:
           uses: actions/checkout@v4.1.1
         - name: Build paper
           id: build
-          uses: blytkerchan/build-paper@rlc/fix-pdf-build
+          uses: blytkerchan/build-paper@v1
           with:
             filename: paper-v1.ipynb
             requirements-txt: paper-requirements.txt
