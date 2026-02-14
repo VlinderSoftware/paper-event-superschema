@@ -32,9 +32,8 @@ jobs:
           with:
             name: paper-output
             path: |
-              _site/index.html
+              _site/
               paper-v1.pdf
-              diagram.png
     
     deploy:
         needs: build-paper
@@ -48,10 +47,14 @@ jobs:
           uses: actions/download-artifact@v4
           with:
             name: paper-output
-            path: ./public
-        - name: Create index redirect
+            path: ./download
+        - name: Prepare deployment
           run: |
-            echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=paper-v1.html"></head><body>Redirecting to paper...</body></html>' > ./public/index.html
+            mkdir -p ./public
+            # Copy HTML and assets from _site directory to public root
+            cp -r ./download/_site/* ./public/
+            # Copy PDF to public root
+            cp ./download/paper-v1.pdf ./public/
         - name: Setup Pages
           uses: actions/configure-pages@v4
         - name: Upload to Pages
