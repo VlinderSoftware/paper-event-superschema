@@ -23,7 +23,6 @@ jobs:
         - name: Build paper
           id: build
           uses: blytkerchan/build-paper@rlc/fix-pdf-build
-          continue-on-error: true
           with:
             filename: paper-v1.ipynb
             requirements-txt: paper-requirements.txt
@@ -31,7 +30,6 @@ jobs:
             build-pdf: true
             publish-ghpages: false
         - name: Upload artifact
-          if: always()
           uses: actions/upload-artifact@v4
           with:
             name: paper-output
