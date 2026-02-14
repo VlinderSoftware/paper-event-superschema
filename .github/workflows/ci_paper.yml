@@ -1,7 +1,7 @@
 name: Build and Deploy Paper
 on:
     push:
-        branches: [dev, main]
+        branches: [main]
     workflow_dispatch: {}
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
