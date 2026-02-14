@@ -22,7 +22,7 @@ jobs:
           uses: actions/checkout@v4.1.1
         - name: Build paper
           id: build
-          uses: blytkerchan/build-paper@v1
+          uses: blytkerchan/build-paper@rlc/fix-pdf-build
           continue-on-error: true
           with:
             filename: paper-v1.ipynb
@@ -35,9 +35,7 @@ jobs:
           uses: actions/upload-artifact@v4
           with:
             name: paper-output
-            path: |
-              _site/
-              paper-v1.pdf
+            path: _site/
     
     deploy:
         needs: build-paper
@@ -51,14 +49,13 @@ jobs:
           uses: actions/download-artifact@v4
           with:
             name: paper-output
-            path: ./download
-        - name: Prepare deployment
-          run: |
-            mkdir -p ./public
-            # Copy HTML and assets from _site directory to public root
-            cp -r ./download/_site/* ./public/
-            # Copy PDF to public root
-            cp ./download/paper-v1.pdf ./public/
+            path: ./public
+        - name: Setup Pages
+          uses: actions/configure-pages@v4
+        - name: Upload to Pages
+          uses: actions/upload-pages-artifact@v3
+          with:
+            path: ./public
         - name: Setup Pages
           uses: actions/configure-pages@v4
         - name: Upload to Pages
