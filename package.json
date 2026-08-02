@@ -1,0 +1,45 @@
+{
+  "name": "@vlinder/paper-event-superschema",
+  "version": "1.0.0",
+  "description": "Event superschema for microservices interoperability",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && npm run build:types && npm run build:esm && npm run build:cjs",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
+    "build:esm": "tsc --module esnext --outDir dist/esm",
+    "build:cjs": "tsc --module commonjs --outDir dist/cjs",
+    "test": "npm run test:cjs && npm run test:esm",
+    "test:cjs": "node test/test-cjs.js",
+    "test:esm": "node test/test-esm.mjs",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "event",
+    "schema",
+    "microservices",
+    "superschema",
+    "messaging"
+  ],
+  "author": "Vlinder Software",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VlinderSoftware/paper-event-superschema.git"
+  }
+}
