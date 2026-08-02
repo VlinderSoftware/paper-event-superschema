@@ -1,0 +1,61 @@
+{
+  "name": "@vlinder/paper-event-superschema",
+  "version": "1.0.0",
+  "description": "Event superschema for microservices interoperability",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/cjs/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && npm run build:esm && npm run build:cjs",
+    "build:esm": "tsc --module esnext --outDir dist/esm && node scripts/write-module-type.mjs esm",
+    "build:cjs": "tsc --module commonjs --outDir dist/cjs && node scripts/write-module-type.mjs cjs",
+    "pretest": "npm run build",
+    "test": "node --test test/validator.test.mjs test/dispatcher.test.mjs test/schema-agreement.test.mjs test/interop-esm.test.mjs test/interop-cjs.test.cjs",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "event",
+    "schema",
+    "microservices",
+    "superschema",
+    "messaging"
+  ],
+  "author": "Vlinder Software",
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "typescript": "^5.9.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VlinderSoftware/paper-event-superschema.git"
+  },
+  "bugs": {
+    "url": "https://github.com/VlinderSoftware/paper-event-superschema/issues"
+  },
+  "homepage": "https://github.com/VlinderSoftware/paper-event-superschema#readme"
+}
