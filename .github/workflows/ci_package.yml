@@ -20,13 +20,19 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                # 18 and 20.x below 20.19 predate ESM syntax detection, so they
-                # are the versions that catch a mislabelled dual build.
-                node-version: ['18.x', '20.x', '22.x', '24.x']
+                # Supported release lines: 22 and 24 are LTS, 26 is Current.
+                # 18 and 20 reached end-of-life and are no longer tested.
+                #
+                # Catching the dual-build regression this suite exists for used
+                # to require an old runtime, because ESM syntax detection
+                # (Node >= 20.19 / >= 22.7) masks it. It no longer does:
+                # test/interop-esm.test.mjs disables detection explicitly, so
+                # that coverage does not depend on testing EOL Node.
+                node-version: ['22.x', '24.x', '26.x']
         name: Node ${{ matrix.node-version }}
         steps:
             - name: Checkout
-              uses: actions/checkout@v4
+              uses: actions/checkout@v7
             - name: Set up Node
               uses: actions/setup-node@v4
               with:
@@ -44,11 +50,11 @@ jobs:
         name: Verify published contents
         steps:
             - name: Checkout
-              uses: actions/checkout@v4
+              uses: actions/checkout@v7
             - name: Set up Node
               uses: actions/setup-node@v4
               with:
-                node-version: '22.x'
+                node-version: '24.x'
                 cache: npm
             - name: Install dependencies
               run: npm ci

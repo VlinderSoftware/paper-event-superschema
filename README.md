@@ -8,6 +8,9 @@ Event superschema for microservices interoperability. This package provides a co
 npm install @vlinder/paper-event-superschema
 ```
 
+Requires Node 22 or newer. Tested against 22 and 24 (LTS) and 26 (Current);
+18 and 20 are end-of-life and are not supported.
+
 ## Features
 
 - ✅ Dual module support (CommonJS and ES Modules)
