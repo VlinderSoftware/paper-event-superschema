@@ -1,0 +1,58 @@
+name: Build and Test Package
+
+on:
+    push:
+        branches: [main, dev]
+    pull_request:
+        branches: [main, dev]
+    workflow_dispatch: {}
+
+permissions:
+    contents: read
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                # 18 and 20.x below 20.19 predate ESM syntax detection, so they
+                # are the versions that catch a mislabelled dual build.
+                node-version: ['18.x', '20.x', '22.x', '24.x']
+        name: Node ${{ matrix.node-version }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Set up Node
+              uses: actions/setup-node@v4
+              with:
+                node-version: ${{ matrix.node-version }}
+                cache: npm
+            - name: Install dependencies
+              run: npm ci
+            - name: Build
+              run: npm run build
+            - name: Test
+              run: npm test
+
+    package:
+        runs-on: ubuntu-latest
+        name: Verify published contents
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Set up Node
+              uses: actions/setup-node@v4
+              with:
+                node-version: '22.x'
+                cache: npm
+            - name: Install dependencies
+              run: npm ci
+            - name: Build
+              run: npm run build
+            - name: List tarball contents
+              run: npm pack --dry-run

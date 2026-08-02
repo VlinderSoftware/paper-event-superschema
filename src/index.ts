@@ -14,7 +14,8 @@ export type {
   EventHandler,
   EventHandlers,
   EventDispatcher,
-  ErrorCallback
+  ErrorCallback,
+  ValidationOptions
 } from './types.js';
 
 // Export schema

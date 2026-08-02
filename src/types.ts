@@ -15,6 +15,19 @@ export interface EventMetadata {
 }
 
 /**
+ * Options controlling how strictly an event is validated
+ */
+export interface ValidationOptions {
+  /**
+   * Require UUID fields to be of a specific version (e.g. 4).
+   *
+   * Omit to accept any UUID version, which is what the superschema's
+   * `format: "uuid"` specifies.
+   */
+  uuidVersion?: number;
+}
+
+/**
  * Base event structure for all messages
  */
 export interface Event<T = any> {
