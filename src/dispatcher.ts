@@ -1,5 +1,4 @@
 import {
-  Event,
   EventHandlers,
   EventDispatcher,
   ErrorCallback,
@@ -56,7 +55,7 @@ export function getEventDispatcher(
   handlers: EventHandlers,
   options?: ValidationOptions
 ): EventDispatcher {
-  return function dispatch(event: Event): void {
+  return function dispatch(event: unknown): void {
     // Validate event against superschema
     if (!isValidEvent(event, options)) {
       err({

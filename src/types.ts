@@ -19,10 +19,10 @@ export interface EventMetadata {
  */
 export interface ValidationOptions {
   /**
-   * Require UUID fields to be of a specific version (e.g. 4).
+   * Require UUID fields to be of a specific RFC 9562 version, 1 through 8.
    *
    * Omit to accept any UUID version, which is what the superschema's
-   * `format: "uuid"` specifies.
+   * `format: "uuid"` specifies. A value outside 1-8 rejects every UUID.
    */
   uuidVersion?: number;
 }
@@ -61,5 +61,10 @@ export interface EventHandlers {
 
 /**
  * Event dispatcher function type
+ *
+ * Takes `unknown` because the dispatcher validates at runtime: events arrive
+ * off a bus as parsed JSON, and requiring callers to assert `Event` before
+ * calling would defeat the validation they are calling it for. Handlers still
+ * receive a validated `Event`.
  */
-export type EventDispatcher = (event: Event) => void;
+export type EventDispatcher = (event: unknown) => void;

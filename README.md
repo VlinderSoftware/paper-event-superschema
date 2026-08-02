@@ -175,5 +175,5 @@ CommonJS and fails on Node versions without module syntax detection.
 
 ## License
 
-[MIT](./LICENSE)
+[Apache License 2.0](./LICENSE)
 

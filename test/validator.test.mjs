@@ -50,6 +50,24 @@ test('isValidUUID can require a specific version', () => {
   assert.equal(isValidUUID(UUID_V4, { uuidVersion: 7 }), false);
 });
 
+test('isValidUUID rejects every value for an undefined UUID version', () => {
+  // The version is interpolated into a regex, so a non-integer would inject a
+  // "." metacharacter and match more than intended.
+  for (const uuidVersion of [4.5, 0, -1, 9, 16, NaN, Infinity]) {
+    assert.equal(
+      isValidUUID(UUID_V4, { uuidVersion }),
+      false,
+      `expected uuidVersion ${uuidVersion} to reject a v4 UUID`
+    );
+    assert.equal(isValidUUID(UUID_V7, { uuidVersion }), false);
+  }
+});
+
+test('isValidEvent rejects everything for an undefined UUID version', () => {
+  assert.equal(isValidEvent(validEvent(), { uuidVersion: 4.5 }), false);
+  assert.equal(isValidEvent(validEvent(), { uuidVersion: 99 }), false);
+});
+
 test('isValidEvent accepts events matching the superschema', () => {
   for (const [label, event] of VALID_EVENTS) {
     assert.equal(isValidEvent(event), true, `expected "${label}" to be valid`);

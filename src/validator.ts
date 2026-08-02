@@ -10,10 +10,26 @@ import { Event, ValidationOptions } from './types.js';
  */
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/** Versions defined by RFC 9562. */
+const MIN_UUID_VERSION = 1;
+const MAX_UUID_VERSION = 8;
+
 /**
  * Pattern for a specific RFC 9562 UUID version, with the variant bits pinned.
+ *
+ * Returns null for anything that is not a defined version. The version is
+ * interpolated into a regex, so a non-integer would otherwise inject a `.`
+ * metacharacter and silently widen the pattern.
  */
-function versionedUUIDPattern(version: number): RegExp {
+function versionedUUIDPattern(version: number): RegExp | null {
+  if (
+    !Number.isInteger(version) ||
+    version < MIN_UUID_VERSION ||
+    version > MAX_UUID_VERSION
+  ) {
+    return null;
+  }
+
   return new RegExp(
     `^[0-9a-f]{8}-[0-9a-f]{4}-${version.toString(16)}[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`,
     'i'
@@ -24,7 +40,8 @@ function versionedUUIDPattern(version: number): RegExp {
  * Validates if a string is a valid UUID
  *
  * By default any UUID version is accepted, matching the `format: "uuid"`
- * constraint in the superschema. Pass `version` to require a specific one.
+ * constraint in the superschema. Pass `uuidVersion` to require a specific one;
+ * a version outside 1-8 rejects every value rather than validating loosely.
  *
  * @param value - The string to validate
  * @param options - Optional validation options
@@ -32,8 +49,8 @@ function versionedUUIDPattern(version: number): RegExp {
  *
  * @example
  * ```typescript
- * isValidUUID('01937b3f-1c4a-7c3e-8f2a-3b1c4d5e6f70');              // true (v7)
- * isValidUUID('01937b3f-1c4a-7c3e-8f2a-3b1c4d5e6f70', { version: 4 }); // false
+ * isValidUUID('01937b3f-1c4a-7c3e-8f2a-3b1c4d5e6f70');                   // true (v7)
+ * isValidUUID('01937b3f-1c4a-7c3e-8f2a-3b1c4d5e6f70', { uuidVersion: 4 }); // false
  * ```
  */
 export function isValidUUID(value: string, options?: ValidationOptions): boolean {
@@ -41,7 +58,9 @@ export function isValidUUID(value: string, options?: ValidationOptions): boolean
   if (version === undefined) {
     return UUID_PATTERN.test(value);
   }
-  return versionedUUIDPattern(version).test(value);
+
+  const pattern = versionedUUIDPattern(version);
+  return pattern !== null && pattern.test(value);
 }
 
 /**

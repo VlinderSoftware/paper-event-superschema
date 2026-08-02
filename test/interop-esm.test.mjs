@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
@@ -23,34 +23,47 @@ test('the ESM build loads without relying on module syntax detection', () => {
   // Syntax detection (Node >= 20.19 / >= 22.7) silently rescues a mislabelled
   // ESM file, hiding the failure that older supported Node versions would hit.
   // Disabling it makes this test fail on every version, not just the old ones.
-  const script = `import('${new URL('../dist/esm/index.js', import.meta.url).href}')
-    .then((m) => { if (typeof m.isValidEvent !== 'function') process.exit(2); })
-    .catch((e) => { console.error(e.message); process.exit(3); });`;
+  //
+  // The probe must run as ESM (--input-type=module) and use a static import:
+  // a dynamic import() from a CommonJS context goes through require(esm)
+  // interop instead, which fails differently and would mask the real problem.
+  const script =
+    `import { isValidEvent } from '${new URL('../dist/esm/index.js', import.meta.url).href}';` +
+    `if (typeof isValidEvent !== 'function') process.exit(2);`;
 
-  const attempt = (args) =>
-    execFileSync(process.execPath, [...args, '-e', script], { encoding: 'utf8', stdio: 'pipe' });
+  const run = (args) =>
+    spawnSync(process.execPath, [...args, '--input-type=module', '-e', script], {
+      encoding: 'utf8'
+    });
 
-  try {
-    attempt(['--no-experimental-detect-module']);
-  } catch (error) {
-    // Node versions predating the flag never had detection to begin with, so
-    // the plain run is already the strict check.
-    const unsupportedFlag = /bad option|not allowed|--no-experimental-detect-module/i.test(
-      String(error.stderr ?? '')
-    );
-    assert.ok(unsupportedFlag, `ESM entry failed to load: ${error.stderr || error.message}`);
-    attempt([]);
+  let result = run(['--no-experimental-detect-module']);
+
+  // Node versions predating the flag never had detection to begin with, so
+  // there the plain run is already the strict check. Match only the launcher's
+  // own rejection, so a genuine load failure is never mistaken for it.
+  if (result.status !== 0 && /bad option/i.test(result.stderr)) {
+    result = run([]);
   }
+
+  assert.equal(
+    result.status,
+    0,
+    `ESM entry failed to load with syntax detection disabled: ${result.stderr}`
+  );
 });
 
 test('the ESM build emits no module-type warning', () => {
-  const result = execFileSync(
+  // Node writes process warnings to stderr, so stdout alone would never show
+  // MODULE_TYPELESS_PACKAGE_JSON even when it is emitted.
+  const result = spawnSync(
     process.execPath,
     ['-e', `import('${new URL('../dist/esm/index.js', import.meta.url).href}')`],
-    { encoding: 'utf8', stdio: 'pipe' }
+    { encoding: 'utf8' }
   );
 
-  assert.doesNotMatch(String(result), /MODULE_TYPELESS_PACKAGE_JSON/);
+  assert.equal(result.status, 0, `entry failed to load: ${result.stderr}`);
+  assert.doesNotMatch(result.stderr, /MODULE_TYPELESS_PACKAGE_JSON/);
+  assert.doesNotMatch(result.stderr, /Reparsing as ES module/);
 });
 
 test('named exports are available to ESM consumers', () => {

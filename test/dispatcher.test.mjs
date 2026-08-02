@@ -99,6 +99,21 @@ test('passes the error callback through to the handler', () => {
   assert.equal(received, err);
 });
 
+test('accepts unvalidated input, as bus consumers supply', () => {
+  // Events arrive as parsed JSON of unknown shape; the dispatcher is what
+  // establishes they are Events, so it must accept anything.
+  const { calls, errors, handlers, err } = recorder(['PurchaseOrderReceived']);
+  const dispatch = getEventDispatcher(err, handlers);
+
+  for (const junk of [null, undefined, 42, 'string', [], {}]) {
+    dispatch(junk);
+  }
+
+  assert.deepEqual(calls, []);
+  assert.equal(errors.length, 6);
+  assert.ok(errors.every((e) => e.error === 'SchemaMismatchError'));
+});
+
 test('forwards validation options', () => {
   const { calls, errors, handlers, err } = recorder(['PurchaseOrderReceived']);
   const dispatch = getEventDispatcher(err, handlers, { uuidVersion: 4 });
